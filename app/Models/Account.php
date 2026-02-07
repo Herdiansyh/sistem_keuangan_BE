@@ -40,6 +40,14 @@ class Account extends Model
         return $this->hasMany(Account::class, 'parent_id');
     }
 
+    /**
+     * Get transactions for this account
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
     
     public function descendants()
     {

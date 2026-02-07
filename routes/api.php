@@ -39,6 +39,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('accounts/{account}', [AccountController::class, 'update']);
     Route::delete('accounts/{account}', [AccountController::class, 'destroy']);
 
+    // Account Summary routes
+    Route::get('account-summary/financial', [\App\Http\Controllers\AccountSummaryController::class, 'financialSummary']);
+    Route::get('account-summary/top', [\App\Http\Controllers\AccountSummaryController::class, 'topAccounts']);
+    Route::get('account-summary/{id}/balance', [\App\Http\Controllers\AccountSummaryController::class, 'balance']);
+    Route::get('account-summary/{id}', [\App\Http\Controllers\AccountSummaryController::class, 'show']);
+    Route::get('account-summary', [\App\Http\Controllers\AccountSummaryController::class, 'index']);
+
     // Transaction routes
     Route::get('transactions/statistics', [\App\Http\Controllers\TransactionController::class, 'statistics']);
     Route::get('transactions/report', [\App\Http\Controllers\TransactionController::class, 'report']);

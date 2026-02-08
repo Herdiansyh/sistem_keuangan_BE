@@ -38,7 +38,7 @@ class AccountSummaryController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Account summary retrieved successfully',
+            'message' => 'Ringkasan akun berhasil diambil',
             'data' => [
                 'accounts' => $paginatedData['items'],
                 'pagination' => $paginatedData['pagination'],
@@ -48,7 +48,7 @@ class AccountSummaryController extends Controller
                     'total_balance' => $accountSummary->sum('total_balance'),
                     'formatted_total_balance' => number_format($accountSummary->sum('total_balance'), 2, ',', '.'),
                 ],
-            ]
+            ],
         ]);
     }
 

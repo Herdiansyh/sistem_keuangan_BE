@@ -95,9 +95,36 @@ class TransactionService
             );
         }
 
-        // Apply account name filter
+        // Apply account filter by ID
+        if (!empty($filters['account_id'])) {
+            $query->where('account_id', $filters['account_id']);
+        }
+
+        // Apply account name filter (for backward compatibility)
         if (!empty($filters['account_name'])) {
             $query->byAccountName($filters['account_name']);
+        }
+
+        // Debug: Log filters for troubleshooting
+        if (!empty($filters['account_id'])) {
+            \Log::info('Filtering by account_id: ' . $filters['account_id']);
+        }
+
+        // Apply search filter (description and notes)
+        if (!empty($filters['search'])) {
+            $query->where(function ($q) use ($filters) {
+                $q->where('description', 'like', "%{$filters['search']}%")
+                  ->orWhere('notes', 'like', "%{$filters['search']}%");
+            });
+        }
+
+        // Apply transaction type filter
+        if (!empty($filters['transaction_type'])) {
+            if ($filters['transaction_type'] === 'debit') {
+                $query->where('debit', '>', 0);
+            } elseif ($filters['transaction_type'] === 'credit') {
+                $query->where('credit', '>', 0);
+            }
         }
 
         return $query;

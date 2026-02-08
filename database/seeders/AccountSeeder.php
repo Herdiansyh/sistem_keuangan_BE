@@ -66,18 +66,18 @@ class AccountSeeder extends Seeder
             
             // Equity Accounts
             [
-                'code' => '4000',
+                'code' => '3000',
                 'name' => 'Modal Saham',
                 'type' => 'equity',
                 'is_active' => true,
                 'parent_id' => null,
                 'opening_balance' => 100000000,
-                'description' => 'Modal saam pemilik',
+                'description' => 'Modal saham pemilik',
             ],
             
             // Revenue Accounts
             [
-                'code' => '5000',
+                'code' => '4000',
                 'name' => 'Pendapatan Usaha',
                 'type' => 'revenue',
                 'is_active' => true,
@@ -88,7 +88,7 @@ class AccountSeeder extends Seeder
             
             // Expense Accounts
             [
-                'code' => '6000',
+                'code' => '5000',
                 'name' => 'Beban Operasional',
                 'type' => 'expense',
                 'is_active' => true,

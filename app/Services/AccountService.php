@@ -85,12 +85,9 @@ class AccountService
      */
     public function getAccountTree()
     {
+        // Use recursive query to get unlimited levels
         $accounts = Account::whereNull('parent_id')
-            ->with(['children' => function ($query) {
-                $query->with(['children' => function ($query) {
-                    $query->with('children');
-                }]);
-            }])
+            ->with('children')
             ->orderBy('code')
             ->get();
 
@@ -98,19 +95,18 @@ class AccountService
             return [];
         }
 
-        return $this->buildTree($accounts);
+        return $this->buildTreeRecursive($accounts);
     }
 
-    
     /**
-     * Build tree structure from accounts
+     * Build tree structure recursively
      */
-    private function buildTree($accounts, $level = 0)
+    private function buildTreeRecursive($accounts, $level = 0)
     {
         $tree = [];
         
         foreach ($accounts as $account) {
-            $account->level = $level; // Add level property
+            $account->level = $level;
             
             $node = [
                 'id' => $account->id,
@@ -122,19 +118,16 @@ class AccountService
                 'parent_id' => $account->parent_id,
                 'opening_balance' => (float) $account->opening_balance,
                 'description' => $account->description,
-                'can_be_used_in_transactions' => $account->is_active && $account->children->isEmpty(),
-                'is_leaf_account' => $account->children->isEmpty(),
-                'is_parent_account' => $account->children->isNotEmpty(),
-                'level' => $level,
                 'created_at' => $account->created_at,
                 'updated_at' => $account->updated_at,
+                'level' => $level,
+                'children_count' => $account->children->count(),
+                'has_children' => $account->children->isNotEmpty(),
                 'children' => []
             ];
 
             if ($account->children && $account->children->isNotEmpty()) {
-                $node['children'] = $this->buildTree($account->children, $level + 1);
-                $node['children_count'] = $account->children->count();
-                $node['has_children'] = true;
+                $node['children'] = $this->buildTreeRecursive($account->children, $level + 1);
             } else {
                 $node['children_count'] = 0;
                 $node['has_children'] = false;

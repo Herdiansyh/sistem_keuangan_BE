@@ -28,7 +28,9 @@ class TransactionController extends Controller
         $filters = [
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
-            'account_name' => $request->input('account_name'),
+            'account_id' => $request->input('account_id'),
+            'search' => $request->input('search'),
+            'transaction_type' => $request->input('transaction_type'),
         ];
 
         // Apply filters
@@ -39,7 +41,7 @@ class TransactionController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Transactions retrieved successfully',
+            'message' => 'Transaksi berhasil diambil',
             'data' => [
                 'transactions' => TransactionResource::collection($transactions),
                 'pagination' => [
@@ -67,7 +69,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Transaction created successfully',
+                'message' => 'Transaksi berhasil dibuat',
                 'data' => new TransactionResource($transaction)
             ], 201);
         } catch (\Exception $e) {
@@ -110,7 +112,7 @@ class TransactionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Transaction updated successfully',
+                'message' => 'Transaksi berhasil diperbarui',
                 'data' => new TransactionResource($updatedTransaction)
             ]);
         } catch (\Exception $e) {
@@ -133,13 +135,13 @@ class TransactionController extends Controller
             if ($deleted) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Transaction deleted successfully',
+                    'message' => 'Transaksi berhasil dihapus',
                     'data' => null
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to delete transaction',
+                    'message' => 'Gagal menghapus transaksi: ' . $e->getMessage(),
                     'data' => null
                 ], 500);
             }

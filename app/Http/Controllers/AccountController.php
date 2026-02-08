@@ -38,7 +38,7 @@ class AccountController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Accounts retrieved successfully',
+            'message' => 'Akun berhasil diambil',
             'data' => [
                 'accounts' => AccountResource::collection($accounts),
                 'pagination' => [
@@ -46,7 +46,7 @@ class AccountController extends Controller
                     'last_page' => $accounts->lastPage(),
                     'per_page' => $accounts->perPage(),
                     'total' => $accounts->total(),
-                ]
+                ],
             ]
         ]);
     }
@@ -120,13 +120,13 @@ class AccountController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Account tree retrieved successfully',
+                'message' => 'Struktur akun berhasil diambil',
                 'data' => $tree
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve account tree: ' . $e->getMessage(),
+                'message' => 'Gagal mengambil struktur akun: ' . $e->getMessage(),
                 'data' => null
             ], 500);
         }
@@ -159,13 +159,13 @@ class AccountController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Account created successfully',
+                'message' => 'Akun berhasil dibuat',
                 'data' => new AccountResource($account)
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create account: ' . $e->getMessage(),
+                'message' => 'Gagal membuat akun: ' . $e->getMessage(),
                 'data' => null
             ], 500);
         }
@@ -192,6 +192,42 @@ class AccountController extends Controller
     public function update(UpdateAccountRequest $request, Account $account): JsonResponse
     {
         try {
+            // Check if account has transactions and trying to change parent
+            if ($account->transactions()->exists() && $request->parent_id !== $account->parent_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat mengubah parent akun yang memiliki transaksi',
+                    'data' => null
+                ], 422);
+            }
+
+            // Check if account has children and trying to change type
+            if ($account->children()->exists() && $request->type && $request->type !== $account->type) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat mengubah tipe akun yang memiliki akun anak',
+                    'data' => null
+                ], 422);
+            }
+
+            // NEW: Check if account has transactions and trying to change type
+            if ($account->transactions()->exists() && $request->type && $request->type !== $account->type) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat mengubah tipe akun yang memiliki transaksi. Kode akun sudah fixed.',
+                    'data' => null
+                ], 422);
+            }
+
+            // NEW: For accounts with existing code, prevent type change to maintain consistency
+            if ($account->code && $request->type && $request->type !== $account->type) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat mengubah tipe akun yang sudah memiliki kode. Buat akun baru dengan tipe yang diinginkan.',
+                    'data' => null
+                ], 422);
+            }
+
             $account->update([
                 'name' => $request->name,
                 'type' => $request->type ?? $account->type, // Use existing type if not provided
@@ -206,13 +242,13 @@ class AccountController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Account updated successfully',
+                'message' => 'Akun berhasil diperbarui',
                 'data' => new AccountResource($account)
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update account: ' . $e->getMessage(),
+                'message' => 'Gagal memperbarui akun: ' . $e->getMessage(),
                 'data' => null
             ], 500);
         }
@@ -228,17 +264,16 @@ class AccountController extends Controller
             if ($account->children()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete account with child accounts',
+                    'message' => 'Tidak dapat menghapus akun yang memiliki akun anak',
                     'data' => null
                 ], 422);
             }
 
-            // Check if account has transactions (when transaction module is implemented)
-            // For now, we'll just check if it can be deleted
-            if (!$account->canBeUsedInTransactions()) {
+            // Check if account has transactions
+            if ($account->transactions()->exists()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot delete inactive account',
+                    'message' => 'Tidak dapat menghapus akun yang memiliki transaksi',
                     'data' => null
                 ], 422);
             }
@@ -247,13 +282,13 @@ class AccountController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Account deleted successfully',
+                'message' => 'Akun berhasil dihapus',
                 'data' => null
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete account: ' . $e->getMessage(),
+                'message' => 'Gagal menghapus akun: ' . $e->getMessage(),
                 'data' => null
             ], 500);
         }

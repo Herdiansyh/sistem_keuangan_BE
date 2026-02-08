@@ -27,7 +27,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'User registered successfully',
+            'message' => 'Registrasi berhasil',
             'data' => [
                 'user' => new UserResource($user),
                 'token' => $token,
@@ -46,7 +46,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid credentials',
+                'message' => 'Kredensial tidak valid',
                 'data' => null
             ], 401);
         }
@@ -55,7 +55,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Login successful',
+            'message' => 'Login berhasil',
             'data' => [
                 'user' => new UserResource($user),
                 'token' => $token,
@@ -73,7 +73,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Logout successful',
+            'message' => 'Logout berhasil',
             'data' => null
         ]);
     }
@@ -110,7 +110,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Profile updated successfully',
+            'message' => 'Profil berhasil diambil',
             'data' => new UserResource($user)
         ]);
     }

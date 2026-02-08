@@ -46,7 +46,9 @@ class AccountSummaryService
         $transactions = $account->transactions;
         $totalDebit = $transactions->where('debit', '>', 0)->sum('debit') ?? 0;
         $totalCredit = $transactions->where('credit', '>', 0)->sum('credit') ?? 0;
-        $balance = $totalDebit - $totalCredit;
+        
+        // Calculate balance: Opening Balance + Debit - Credit
+        $balance = $account->opening_balance + $totalDebit - $totalCredit;
 
         // Build children summary recursively
         $childrenSummary = [];
@@ -57,7 +59,7 @@ class AccountSummaryService
         }
 
         // Calculate total balance including children
-        $childrenTotalBalance = collect($childrenSummary)->sum('balance');
+        $childrenTotalBalance = collect($childrenSummary)->sum('total_balance');
         $totalBalance = $balance + $childrenTotalBalance;
 
         return [
@@ -150,7 +152,8 @@ class AccountSummaryService
         $totalDebit = $transactions->where('debit', '>', 0)->sum('debit') ?? 0;
         $totalCredit = $transactions->where('credit', '>', 0)->sum('credit') ?? 0;
 
-        return (float) ($totalDebit - $totalCredit);
+        // Balance = Opening Balance + Debit - Credit
+        return (float) ($account->opening_balance + $totalDebit - $totalCredit);
     }
 
     /**
@@ -166,7 +169,7 @@ class AccountSummaryService
                     $transactions = $account->transactions;
                     $totalDebit = $transactions->where('debit', '>', 0)->sum('debit') ?? 0;
                     $totalCredit = $transactions->where('credit', '>', 0)->sum('credit') ?? 0;
-                    $balance = $totalDebit - $totalCredit;
+                    $balance = $account->opening_balance + $totalDebit - $totalCredit;
 
                     return [
                         'id' => $account->id,

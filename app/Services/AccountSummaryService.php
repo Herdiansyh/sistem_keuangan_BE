@@ -54,7 +54,7 @@ class AccountSummaryService
         $childrenSummary = [];
         if ($account->children && $account->children->isNotEmpty()) {
             $childrenSummary = $account->children->map(function ($child) {
-                return $this->buildAccountSummary($child);
+                return $this->buildAccountSummary($child, null);
             })->toArray();
         }
 

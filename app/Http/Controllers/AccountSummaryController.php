@@ -77,23 +77,25 @@ class AccountSummaryController extends Controller
     /**
      * Get financial summary statistics
      */
-    public function financialSummary(Request $request): JsonResponse
+    public function financial(Request $request): JsonResponse
     {
         // Build filters from request
         $filters = [
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
         ];
-
+        
         $financialSummary = $this->accountSummaryService->getFinancialSummary($filters);
+
+        Log::info('Financial summary request', [
+            'filters' => $filters,
+            'summary_data' => $financialSummary
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Financial summary retrieved successfully',
-            'data' => [
-                'summary' => $financialSummary,
-                'filters' => $filters,
-            ]
+            'message' => 'Ringkasan keuangan berhasil diambil',
+            'data' => $financialSummary
         ]);
     }
 

@@ -104,35 +104,54 @@ class AccountSummaryService
     /**
      * Get financial summary statistics
      */
-    public function getFinancialSummary(array $filters = []): array
-    {
-        $query = Transaction::whereHas('account', function ($q) {
-            $q->where('is_active', true);
-        });
+   public function getFinancialSummary(array $filters = []): array
+{
+    $accounts = Account::with(['transactions'])
+        ->where('is_active', true)
+        ->get();
 
-        // Apply date filters
-        if (!empty($filters['start_date'])) {
-            $query->whereDate('transaction_date', '>=', $filters['start_date']);
+    $totals = [
+        'asset' => 0,
+        'liability' => 0,
+        'equity' => 0,
+        'revenue' => 0,
+        'expense' => 0,
+    ];
+
+    $globalTotalDebit = 0;
+    $globalTotalCredit = 0;
+
+    foreach ($accounts as $account) {
+        $accountDebit = $account->transactions->sum('debit');
+        $accountCredit = $account->transactions->sum('credit');
+
+        $globalTotalDebit += $accountDebit;
+        $globalTotalCredit += $accountCredit;
+
+        // saldo akun = opening + debit - credit
+        $balance = $account->opening_balance + $accountDebit - $accountCredit;
+
+        $type = $account->type;
+
+        if (isset($totals[$type])) {
+            $totals[$type] += $balance;
         }
-        if (!empty($filters['end_date'])) {
-            $query->whereDate('transaction_date', '<=', $filters['end_date']);
-        }
-
-        $totalDebit = $query->sum('debit');
-        $totalCredit = $query->sum('credit');
-        $totalTransactions = $query->count();
-
-        return [
-            'total_debit' => (float) $totalDebit,
-            'total_credit' => (float) $totalCredit,
-            'net_amount' => (float) ($totalDebit - $totalCredit),
-            'total_transactions' => $totalTransactions,
-            'period' => [
-                'start_date' => $filters['start_date'] ?? null,
-                'end_date' => $filters['end_date'] ?? null,
-            ],
-        ];
     }
+
+    return [
+        // Balance Sheet (Point in Time)
+        'total_assets' => (float) $totals['asset'],
+        'total_liabilities' => (float) $totals['liability'],
+        'total_equity' => (float) $totals['equity'],
+        'net_income' => (float) ($totals['revenue'] - $totals['expense']),
+        
+        // Transaction Flow (Period)
+        'total_debit' => (float) $globalTotalDebit,
+        'total_credit' => (float) $globalTotalCredit,
+        'net_amount' => (float) ($globalTotalDebit - $globalTotalCredit),
+    ];
+}
+
 
     /**
      * Get account balance by ID

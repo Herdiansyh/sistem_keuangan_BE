@@ -6,6 +6,7 @@ use App\Http\Resources\AccountSummaryResource;
 use App\Services\AccountSummaryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AccountSummaryController extends Controller
 {
@@ -77,7 +78,7 @@ class AccountSummaryController extends Controller
     /**
      * Get financial summary statistics
      */
-    public function financial(Request $request): JsonResponse
+    public function financialSummary(Request $request): JsonResponse
     {
         // Build filters from request
         $filters = [

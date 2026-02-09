@@ -27,6 +27,9 @@ class AccountSummaryService
                 $q->where('name', 'like', "%{$filters['search']}%")
                   ->orWhere('code', 'like', "%{$filters['search']}%");
             });
+        } else {
+            // Only get root accounts if not searching
+            $query->whereNull('parent_id');
         }
 
         $accounts = $query->orderBy('code')->get();

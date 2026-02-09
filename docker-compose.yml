@@ -71,23 +71,6 @@ services:
     networks:
       - sistem-keuangan-network
 
-  # Node.js Frontend (React SPA)
-  frontend:
-    image: node:18-alpine
-    container_name: sistem-keuangan-frontend
-    restart: unless-stopped
-    working_dir: /var/www/frontend
-    volumes:
-      - ./frontend:/var/www/frontend
-      - /var/www/frontend/node_modules
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://localhost:8000/api
-      - REACT_APP_ENV=development
-    networks:
-      - sistem-keuangan-network
-    command: sh -c "npm install && npm start"
 
   # PHPMyAdmin (Optional - Database Management)
   phpmyadmin:

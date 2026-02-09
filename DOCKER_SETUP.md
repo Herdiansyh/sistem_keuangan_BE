@@ -67,17 +67,6 @@ docker-compose exec app composer install
 docker-compose exec app composer require package-name
 ```
 
-### Inside Frontend Container
-```bash
-# Access container shell
-docker-compose exec frontend sh
-
-# NPM commands
-docker-compose exec frontend npm install
-docker-compose exec frontend npm start
-docker-compose exec frontend npm run build
-docker-compose exec frontend npm test
-```
 
 ### Database Operations
 ```bash
@@ -179,7 +168,6 @@ QUEUE_CONNECTION=redis
 | nginx | nginx:alpine | 8000 | Web Server |
 | db | mysql:8.0 | 3306 | Database |
 | redis | redis:7-alpine | 6379 | Cache |
-| frontend | node:18-alpine | 3000 | React SPA |
 | phpmyadmin | phpmyadmin/phpmyadmin | 8080 | DB Admin |
 
 ## 📁 Volume Mapping
